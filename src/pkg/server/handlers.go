@@ -22,7 +22,6 @@ const (
 )
 
 func setHandlers() {
-	logMsg("configuring handlers...")
 	http.HandleFunc(requestPut, handlePut)
 	http.HandleFunc(requestRemove, handleRemove)
 	http.HandleFunc(requestGet, handleGet)
@@ -32,28 +31,44 @@ func setHandlers() {
 func getDataBase() database.IDataBase {
 	db, err := database.OpenDataBase(dataBaseUrl)
 	if err != nil {
-		logMsg(err.Error())
+		logf(err.Error())
 		return nil
 	}
 	return db
 }
 
 func handleError(w http.ResponseWriter, err string, code int) {
-	logMsg(err)
+	logf(err)
 	http.Error(w, err, code)
 }
 
+func printToRequestBody(writer http.ResponseWriter, format string, args ...interface{}) {
+	logf(format, args...)
+	_, err := fmt.Fprintf(writer, format, args...)
+	if err != nil {
+		handleError(writer, err.Error(), codeErrorInternal)
+	}
+}
+
+func closeRequestBody(request *http.Request) {
+	if err := request.Body.Close(); err != nil {
+		logf(err.Error())
+	}
+}
+
 func handlePut(writer http.ResponseWriter, request *http.Request) {
-	logMsg("Put request: " + request.RequestURI)
+	defer closeRequestBody(request)
+
+	logf("Put request: " + request.RequestURI)
 
 	entriesInserted := 0
 	db := getDataBase()
 
 	switch request.Method {
 	case "GET":
-		logMsg("Processing GET request")
+		logf("Processing GET request")
 		for k, v := range request.URL.Query() {
-			logMsg("Key: " + k + ". Value: " + v[0])
+			logf("Key: %s. Value = %s.", k, v[0])
 
 			isInserted, err := db.Put(k, v[0])
 			if err != nil {
@@ -64,38 +79,29 @@ func handlePut(writer http.ResponseWriter, request *http.Request) {
 			}
 		}
 	case "POST":
-		// Call ParseForm() to parse the raw query and update r.PostForm and r.Form.
-		/*if err := request.ParseForm(); err != nil {
-			fmt.Fprintf(writer, "ParseForm() err: %v", err)
-			return
-		}
-		fmt.Fprintf(w, "Post from website! r.PostFrom = %v\n", r.PostForm)
-		name := r.FormValue("name")
-		address := r.FormValue("address")
-		fmt.Fprintf(w, "Name = %s\n", name)
-		fmt.Fprintf(w, "Address = %s\n", address)*/
+		handleError(writer, "Not implemented", http.StatusNotImplemented)
+		return
 	default:
 		handleError(writer, "Unsupported request type", codeErrorInternal)
 		return
 	}
 
-	_, err := fmt.Fprintf(writer, "Put done. Entries inserted: %d.", entriesInserted)
-	if err != nil {
-		handleError(writer, err.Error(), codeErrorInternal)
-	}
+	printToRequestBody(writer, "Put done. Entries inserted %d.", entriesInserted)
 }
 
 func handleRemove(writer http.ResponseWriter, request *http.Request) {
-	logMsg("Remove request: " + request.RequestURI)
+	defer closeRequestBody(request)
+
+	logf("Remove request: " + request.RequestURI)
 
 	entriesRemoved := 0
 	db := getDataBase()
 
 	switch request.Method {
 	case "GET":
-		logMsg("Processing GET request")
+		logf("Processing GET request")
 		key := request.URL.Query().Get("key")
-		logMsg("Key: " + key)
+		logf("Key: %s.", key)
 
 		isRemoved, err := db.Remove(key)
 		if err != nil {
@@ -106,38 +112,29 @@ func handleRemove(writer http.ResponseWriter, request *http.Request) {
 			entriesRemoved++
 		}
 	case "POST":
-		// Call ParseForm() to parse the raw query and update r.PostForm and r.Form.
-		/*if err := request.ParseForm(); err != nil {
-			fmt.Fprintf(writer, "ParseForm() err: %v", err)
-			return
-		}
-		fmt.Fprintf(w, "Post from website! r.PostFrom = %v\n", r.PostForm)
-		name := r.FormValue("name")
-		address := r.FormValue("address")
-		fmt.Fprintf(w, "Name = %s\n", name)
-		fmt.Fprintf(w, "Address = %s\n", address)*/
+		handleError(writer, "Not implemented", http.StatusNotImplemented)
+		return
 	default:
 		handleError(writer, "Unsupported request type", codeErrorInternal)
 		return
 	}
 
-	_, err := fmt.Fprintf(writer, "Remove done. Entries removed: %d.", entriesRemoved)
-	if err != nil {
-		handleError(writer, err.Error(), codeErrorInternal)
-	}
+	printToRequestBody(writer, "Remove done. Entries removed: %d.", entriesRemoved)
 }
 
 func handleGet(writer http.ResponseWriter, request *http.Request) {
-	logMsg("Get request: " + request.RequestURI)
+	defer closeRequestBody(request)
+
+	logf("Get request: " + request.RequestURI)
 
 	db := getDataBase()
 	var value string
 
 	switch request.Method {
 	case "GET":
-		logMsg("Processing GET request")
+		logf("Processing GET request")
 		key := request.URL.Query().Get("key")
-		logMsg("Key: " + key)
+		logf("Key: %s.", key)
 
 		v, err := db.Read(key)
 		if err != nil {
@@ -147,14 +144,16 @@ func handleGet(writer http.ResponseWriter, request *http.Request) {
 			value = v
 		}
 	case "POST":
+		handleError(writer, "Not implemented", http.StatusNotImplemented)
+		return
 	default:
 		handleError(writer, "Unsupported request type", codeErrorInternal)
 		return
 	}
 
-	logMsg("Value: " + value)
-	_, err := fmt.Fprintf(writer, "Get done. Value: %s.", value)
-	if err != nil {
-		handleError(writer, err.Error(), codeErrorInternal)
+	if len(value) != 0 {
+		printToRequestBody(writer, "Get done. Value: %s.", value)
+	} else {
+		printToRequestBody(writer, "Get done. Value not found.")
 	}
 }

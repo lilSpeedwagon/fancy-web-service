@@ -1,7 +1,5 @@
 package database
 
-import "errors"
-
 type dbMock struct {
 	data map[string]string
 }
@@ -20,7 +18,7 @@ func (db dbMock) Remove(key string) (bool, error) {
 func (db dbMock) Read(key string) (string, error) {
 	val, isExist := db.data[key]
 	if !isExist {
-		return "", errors.New("key is not exist")
+		return "", nil
 	}
 	return val, nil
 }

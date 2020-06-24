@@ -5,6 +5,42 @@
     <title>Fancy web service</title>
 </head>
 <body>
+    <script src="form.js"></script>
+
     <h1>Fancy web service says hello</h1>
+    <div>
+        <p>This website is an education project for studying Go language basics, WEB servers stuff, databases, famous docker, fashionable CI/CD pipelines etc.</p>
+    </div>
+    <div>
+        <p>Use form below to perform CRUD operations with service database.</p>
+        <div>
+            <p>Put key-value</p>
+            <form action="#" onsubmit="onPut()">
+                <p><label id="put_key_label" for="put_key_field">Key</label><input type="text" id="put_key_field"></p>
+                <p><label id="put_value_label" for="put_value_field">Value</label><input type="text" id="put_value_field"></p>
+                <p><input id="put_submit" type="submit"></p>
+            </form>
+        </div>
+        <div>
+            <p>Get value by key</p>
+            <form action="#" onsubmit="onGet()">
+                <p><label id="get_key_label" for="get_key_field">Key</label><input type="text" id="get_key_field"></p>
+                <p><input id="get_submit" type="submit"></p>
+            </form>
+        </div>
+        <div>
+            <p>Remove value by key</p>
+            <form action="#" onsubmit="onRemove()">
+                <p><label id="remove_key_label" for="remove_key_field">Key</label><input type="text" id="remove_key_field"></p>
+                <p><input id="remove_submit" type="submit"></p>
+            </form>
+        </div>
+        <div>
+            <p>Output</p>
+            <div id="out_container">
+                <p id="out"></p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

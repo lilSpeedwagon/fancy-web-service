@@ -13,9 +13,9 @@ func initLog() {
 		log.Ldate|log.Ltime)
 }
 
-func logMsg(msg string) {
+func logf(format string, args ...interface{}) {
 	if serverLog == nil {
 		initLog()
 	}
-	serverLog.Println(msg)
+	serverLog.Printf(format, args...)
 }
