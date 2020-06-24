@@ -5,8 +5,10 @@ type dbMock struct {
 }
 
 func (db dbMock) Put(key, value string) (bool, error) {
+	_, hasKey := db.data[key]
 	db.data[key] = value
-	return true, nil
+	isInserted := !hasKey
+	return isInserted, nil
 }
 
 func (db dbMock) Remove(key string) (bool, error) {

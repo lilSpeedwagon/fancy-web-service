@@ -9,7 +9,7 @@ async function GET(url)
     console.log("GET request: " + url);
     let response = await fetch(url);
 
-    console.log(response.statusText)
+    console.log(response.statusText);
     if (response.ok)
     {
         let responseText = await response.text();

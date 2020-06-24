@@ -15,10 +15,6 @@ const (
 	requestGet    = "/get"
 
 	dataBaseUrl = ""
-
-	codeSuccessOk     = 200
-	codeErrorInternal = 500
-	codeErrorNotImpl  = 501
 )
 
 func setHandlers() {
@@ -46,7 +42,7 @@ func printToRequestBody(writer http.ResponseWriter, format string, args ...inter
 	logf(format, args...)
 	_, err := fmt.Fprintf(writer, format, args...)
 	if err != nil {
-		handleError(writer, err.Error(), codeErrorInternal)
+		handleError(writer, err.Error(), http.StatusInternalServerError)
 	}
 }
 
@@ -72,7 +68,7 @@ func handlePut(writer http.ResponseWriter, request *http.Request) {
 
 			isInserted, err := db.Put(k, v[0])
 			if err != nil {
-				handleError(writer, err.Error(), codeErrorInternal)
+				handleError(writer, err.Error(), http.StatusInternalServerError)
 			}
 			if isInserted {
 				entriesInserted++
@@ -82,7 +78,7 @@ func handlePut(writer http.ResponseWriter, request *http.Request) {
 		handleError(writer, "Not implemented", http.StatusNotImplemented)
 		return
 	default:
-		handleError(writer, "Unsupported request type", codeErrorInternal)
+		handleError(writer, "Unsupported request type", http.StatusInternalServerError)
 		return
 	}
 
@@ -105,7 +101,7 @@ func handleRemove(writer http.ResponseWriter, request *http.Request) {
 
 		isRemoved, err := db.Remove(key)
 		if err != nil {
-			handleError(writer, err.Error(), codeErrorInternal)
+			handleError(writer, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		if isRemoved {
@@ -115,7 +111,7 @@ func handleRemove(writer http.ResponseWriter, request *http.Request) {
 		handleError(writer, "Not implemented", http.StatusNotImplemented)
 		return
 	default:
-		handleError(writer, "Unsupported request type", codeErrorInternal)
+		handleError(writer, "Unsupported request type", http.StatusInternalServerError)
 		return
 	}
 
@@ -138,7 +134,7 @@ func handleGet(writer http.ResponseWriter, request *http.Request) {
 
 		v, err := db.Read(key)
 		if err != nil {
-			handleError(writer, err.Error(), codeErrorInternal)
+			handleError(writer, err.Error(), http.StatusInternalServerError)
 			return
 		} else {
 			value = v
@@ -147,7 +143,7 @@ func handleGet(writer http.ResponseWriter, request *http.Request) {
 		handleError(writer, "Not implemented", http.StatusNotImplemented)
 		return
 	default:
-		handleError(writer, "Unsupported request type", codeErrorInternal)
+		handleError(writer, "Unsupported request type", http.StatusInternalServerError)
 		return
 	}
 
