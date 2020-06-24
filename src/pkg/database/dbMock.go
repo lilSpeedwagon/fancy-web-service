@@ -6,14 +6,15 @@ type dbMock struct {
 	data map[string]string
 }
 
-func (db dbMock) Put(key, value string) error {
+func (db dbMock) Put(key, value string) (bool, error) {
 	db.data[key] = value
-	return nil
+	return true, nil
 }
 
-func (db dbMock) Remove(key string) error {
+func (db dbMock) Remove(key string) (bool, error) {
+	_, hasKey := db.data[key]
 	delete(db.data, key)
-	return nil
+	return hasKey, nil
 }
 
 func (db dbMock) Read(key string) (string, error) {

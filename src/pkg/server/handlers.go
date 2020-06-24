@@ -54,10 +54,12 @@ func handlePut(writer http.ResponseWriter, request *http.Request) {
 		logMsg("Processing GET request")
 		for k, v := range request.URL.Query() {
 			logMsg("Key: " + k + ". Value: " + v[0])
-			err := db.Put(k, v[0])
+
+			isInserted, err := db.Put(k, v[0])
 			if err != nil {
 				handleError(writer, err.Error(), codeErrorInternal)
-			} else {
+			}
+			if isInserted {
 				entriesInserted++
 			}
 		}
@@ -84,7 +86,45 @@ func handlePut(writer http.ResponseWriter, request *http.Request) {
 }
 
 func handleRemove(writer http.ResponseWriter, request *http.Request) {
-	handleError(writer, "", codeErrorNotImpl)
+	logMsg("Remove request: " + request.RequestURI)
+
+	entriesRemoved := 0
+	db := getDataBase()
+
+	switch request.Method {
+	case "GET":
+		logMsg("Processing GET request")
+		key := request.URL.Query().Get("key")
+		logMsg("Key: " + key)
+
+		isRemoved, err := db.Remove(key)
+		if err != nil {
+			handleError(writer, err.Error(), codeErrorInternal)
+			return
+		}
+		if isRemoved {
+			entriesRemoved++
+		}
+	case "POST":
+		// Call ParseForm() to parse the raw query and update r.PostForm and r.Form.
+		/*if err := request.ParseForm(); err != nil {
+			fmt.Fprintf(writer, "ParseForm() err: %v", err)
+			return
+		}
+		fmt.Fprintf(w, "Post from website! r.PostFrom = %v\n", r.PostForm)
+		name := r.FormValue("name")
+		address := r.FormValue("address")
+		fmt.Fprintf(w, "Name = %s\n", name)
+		fmt.Fprintf(w, "Address = %s\n", address)*/
+	default:
+		handleError(writer, "Unsupported request type", codeErrorInternal)
+		return
+	}
+
+	_, err := fmt.Fprintf(writer, "Remove done. Entries removed: %d.", entriesRemoved)
+	if err != nil {
+		handleError(writer, err.Error(), codeErrorInternal)
+	}
 }
 
 func handleGet(writer http.ResponseWriter, request *http.Request) {
@@ -107,16 +147,6 @@ func handleGet(writer http.ResponseWriter, request *http.Request) {
 			value = v
 		}
 	case "POST":
-		// Call ParseForm() to parse the raw query and update r.PostForm and r.Form.
-		/*if err := request.ParseForm(); err != nil {
-			fmt.Fprintf(writer, "ParseForm() err: %v", err)
-			return
-		}
-		fmt.Fprintf(w, "Post from website! r.PostFrom = %v\n", r.PostForm)
-		name := r.FormValue("name")
-		address := r.FormValue("address")
-		fmt.Fprintf(w, "Name = %s\n", name)
-		fmt.Fprintf(w, "Address = %s\n", address)*/
 	default:
 		handleError(writer, "Unsupported request type", codeErrorInternal)
 		return

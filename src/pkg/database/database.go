@@ -1,8 +1,8 @@
 package database
 
 type IDataBase interface {
-	Put(string, string) error
-	Remove(string) error
+	Put(string, string) (bool, error)
+	Remove(string) (bool, error)
 	Read(string) (string, error)
 }
 
