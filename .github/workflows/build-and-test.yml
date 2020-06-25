@@ -1,0 +1,46 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.13
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+    
+    - name: Set up work dir
+      run: |
+        echo "working directory is" $GITHUB_WORKSPACE
+        cd $GITHUB_WORKSPACE
+
+    - name: Set GOPATH
+      run: echo ::set-env name=GOPATH::$(echo $GITHUB_WORKSPACE)
+
+    - name: Build
+      run: |
+        cd $GITHUB_WORKSPACE/src/pkg/main
+        go build -v -o $GOPATH/src/bin/server.exe
+
+    - name: Test
+      run: 
+        go test $GITHUB_WORKSPACE/src/pkg/main/database_test.go
+      
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: server.exe
+        path: ${{ env.GITHUB_WORKSPACE }}/home/runner/work/fancy-web-service/fancy-web-service/src/bin
