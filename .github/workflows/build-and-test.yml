@@ -28,10 +28,12 @@ jobs:
         cd $GITHUB_WORKSPACE
 
     - name: Set GOPATH
-      run: echo ::set-env name=GOPATH::$(echo $GITHUB_WORKSPACE)
+      run: |
+        echo ::set-env name=GOPATH::$(echo $GITHUB_WORKSPACE)
+        cd $GITHUB_WORKSPACE
     
     - name: Go get packages
-      run: go get go.mongodb.org/mongo-driver
+      run: go get -t go.mongodb.org/mongo-driver/...
 
     - name: Build
       run: |
