@@ -13,8 +13,6 @@ const (
 	requestPut    = "/put"
 	requestRemove = "/remove"
 	requestGet    = "/get"
-
-	dataBaseUrl = ""
 )
 
 func setHandlers() {
@@ -22,15 +20,6 @@ func setHandlers() {
 	http.HandleFunc(requestRemove, handleRemove)
 	http.HandleFunc(requestGet, handleGet)
 	http.Handle(requestBase, http.FileServer(http.Dir(indexPage)))
-}
-
-func getDataBase() database.IDataBase {
-	db, err := database.OpenDataBase(dataBaseUrl)
-	if err != nil {
-		logf(err.Error())
-		return nil
-	}
-	return db
 }
 
 func handleError(w http.ResponseWriter, err string, code int) {
@@ -46,22 +35,32 @@ func printToRequestBody(writer http.ResponseWriter, format string, args ...inter
 	}
 }
 
-func closeRequestBody(request *http.Request) {
+func closeRequestBody(writer http.ResponseWriter, request *http.Request) {
+	if err := recover(); err != nil {
+		logf("Recovered from panic: %s.", err)
+		handleError(writer, "Internal error.", http.StatusInternalServerError)
+	}
+
 	if err := request.Body.Close(); err != nil {
 		logf(err.Error())
 	}
 }
 
 func handlePut(writer http.ResponseWriter, request *http.Request) {
-	defer closeRequestBody(request)
+	defer closeRequestBody(writer, request)
 
 	logf("Put request: " + request.RequestURI)
 
+	db, err := database.GetDataBase()
+	if err != nil {
+		handleError(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	entriesInserted := 0
-	db := getDataBase()
 
 	switch request.Method {
-	case "GET":
+	case http.MethodGet:
 		logf("Processing GET request")
 		for k, v := range request.URL.Query() {
 			logf("Key: %s. Value = %s.", k, v[0])
@@ -74,11 +73,11 @@ func handlePut(writer http.ResponseWriter, request *http.Request) {
 				entriesInserted++
 			}
 		}
-	case "POST":
+	case http.MethodPost:
 		handleError(writer, "Not implemented", http.StatusNotImplemented)
 		return
 	default:
-		handleError(writer, "Unsupported request type", http.StatusInternalServerError)
+		handleError(writer, "Unsupported request type", http.StatusBadRequest)
 		return
 	}
 
@@ -86,15 +85,20 @@ func handlePut(writer http.ResponseWriter, request *http.Request) {
 }
 
 func handleRemove(writer http.ResponseWriter, request *http.Request) {
-	defer closeRequestBody(request)
+	defer closeRequestBody(writer, request)
 
 	logf("Remove request: " + request.RequestURI)
 
+	db, err := database.GetDataBase()
+	if err != nil {
+		handleError(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	entriesRemoved := 0
-	db := getDataBase()
 
 	switch request.Method {
-	case "GET":
+	case http.MethodGet:
 		logf("Processing GET request")
 		key := request.URL.Query().Get("key")
 		logf("Key: %s.", key)
@@ -107,7 +111,7 @@ func handleRemove(writer http.ResponseWriter, request *http.Request) {
 		if isRemoved {
 			entriesRemoved++
 		}
-	case "POST":
+	case http.MethodPost:
 		handleError(writer, "Not implemented", http.StatusNotImplemented)
 		return
 	default:
@@ -119,15 +123,20 @@ func handleRemove(writer http.ResponseWriter, request *http.Request) {
 }
 
 func handleGet(writer http.ResponseWriter, request *http.Request) {
-	defer closeRequestBody(request)
+	defer closeRequestBody(writer, request)
 
 	logf("Get request: " + request.RequestURI)
 
-	db := getDataBase()
+	db, err := database.GetDataBase()
+	if err != nil {
+		handleError(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	var value string
 
 	switch request.Method {
-	case "GET":
+	case http.MethodGet:
 		logf("Processing GET request")
 		key := request.URL.Query().Get("key")
 		logf("Key: %s.", key)
@@ -139,7 +148,7 @@ func handleGet(writer http.ResponseWriter, request *http.Request) {
 		} else {
 			value = v
 		}
-	case "POST":
+	case http.MethodPost:
 		handleError(writer, "Not implemented", http.StatusNotImplemented)
 		return
 	default:

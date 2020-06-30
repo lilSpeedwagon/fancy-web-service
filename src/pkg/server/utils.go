@@ -8,3 +8,11 @@ const (
 func getServerAddress() string {
 	return serverAddress + ":" + serverPort
 }
+
+func validateDbUrl(url string) bool {
+	if len(url) == 0 {
+		return false
+	}
+
+	return true
+}

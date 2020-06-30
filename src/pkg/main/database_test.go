@@ -6,26 +6,39 @@ import (
 )
 
 const (
-	url = ""
+	dbUrl = "test"
 )
 
-func opneDB(t *testing.T) database.IDataBase {
-	db, err := database.OpenDataBase(url)
+func openDB(t *testing.T) database.IDataBase {
+	if err := database.InitDataBase(dbUrl); err != nil {
+		t.Errorf("Cannot init databse with url: %s.", dbUrl)
+	}
+
+	db, err := database.GetDataBase()
 	if db == nil {
-		t.Errorf("Cannot open databse with url: %s.", url)
+		t.Errorf("Database object is nil.")
 	}
 	if err != nil {
-		t.Errorf("Error occured while opening database: %s.", err.Error())
+		t.Errorf("Error occured while getting database: %s.", err.Error())
 	}
 	return db
 }
 
-func TestDatabaseConnection(t *testing.T) {
-	opneDB(t)
+func closeDB(t *testing.T) {
+	err := database.DisposeDataBase()
+	if err != nil {
+		t.Errorf("Error occured while disposing database: %s.", err.Error())
+	}
 }
 
+func TestDatabaseConnection(t *testing.T) {
+	openDB(t)
+	closeDB(t)
+}
+
+//noinspection GoBoolExpressions
 func TestDataBaseCrud(t *testing.T) {
-	db := opneDB(t)
+	db := openDB(t)
 
 	key := "kkk"
 	value := "vvv"
@@ -73,4 +86,6 @@ func TestDataBaseCrud(t *testing.T) {
 	if readVal2 != expectedRead2 {
 		t.Errorf("IDataBase.Read returned: %s. Expected: %s.", readVal2, expectedRead2)
 	}
+
+	closeDB(t)
 }

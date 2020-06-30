@@ -25,8 +25,12 @@ func (db dbMock) Read(key string) (string, error) {
 	return val, nil
 }
 
-func makeDbMock() IDataBase {
+func (db dbMock) Close() error {
+	return nil
+}
+
+func makeDbMock() (IDataBase, error) {
 	db := dbMock{}
 	db.data = make(map[string]string)
-	return db
+	return db, nil
 }
