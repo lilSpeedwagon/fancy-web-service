@@ -6,6 +6,11 @@ import (
 	"sync"
 )
 
+const (
+	codeErr = -1
+	codeOk  = 0
+)
+
 func listen(address string, wg sync.WaitGroup) {
 	defer wg.Done()
 
@@ -17,7 +22,7 @@ func listen(address string, wg sync.WaitGroup) {
 	}
 }
 
-func RunServer(dbUrl string, wg *sync.WaitGroup) {
+func RunServer(dbUrl string, wg *sync.WaitGroup) int {
 	defer func() {
 		logf("Disposing database...")
 		if err := database.DisposeDataBase(); err != nil {
@@ -28,17 +33,17 @@ func RunServer(dbUrl string, wg *sync.WaitGroup) {
 
 	if !validateDbUrl(dbUrl) {
 		logf("Invalid dbUrl provided.")
-		return
+		return codeErr
 	}
 
 	logf("Running server...")
 	setHandlers()
 
-	logf("Connecting do database...")
+	logf("Connecting to database...")
 	err := database.InitDataBase(dbUrl)
 	if err != nil {
 		logf("Cannot reach database: %s.", err.Error())
-		return
+		return codeErr
 	}
 	logf("Database is ready.")
 
@@ -52,4 +57,6 @@ func RunServer(dbUrl string, wg *sync.WaitGroup) {
 
 	logf("Server is listening...")
 	waitForClose.Wait()
+
+	return codeOk
 }

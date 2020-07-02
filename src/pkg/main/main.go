@@ -29,8 +29,12 @@ func main() {
 	wg := new(sync.WaitGroup)
 	wg.Add(1)
 
-	go server.RunServer(dbUrl, wg)
+	var returnCode int
+	go func() {
+		returnCode = server.RunServer(dbUrl, wg)
+	}()
 	wg.Wait()
 
 	fmt.Println("Termination...")
+	os.Exit(returnCode)
 }
