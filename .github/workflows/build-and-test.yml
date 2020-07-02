@@ -56,7 +56,7 @@ jobs:
         username: ${{ secrets.DOCKERHUB_LOGIN }}
         password: ${{ secrets.DOCKERHUB_PASS }}
         repository: fancy-repo
-        tags: fancy:1.0
+        tags: fancy
         path: ${{ env.GITHUB_WORKSPACE }}
         dockerfile: ./DOCKERFILE
         push: true
