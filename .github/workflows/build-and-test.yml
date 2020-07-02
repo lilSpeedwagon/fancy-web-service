@@ -48,7 +48,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: server.exe
-        path: ${{ env.GITHUB_WORKSPACE }}/home/runner/work/fancy-web-service/fancy-web-service/src/bin
+        path: ${{ env.GITHUB_WORKSPACE }}/src/bin
         
     - name: Build and push Docker images
       uses: docker/build-push-action@v1.1.0
@@ -57,6 +57,6 @@ jobs:
         password: ${{ secrets.DOCKERHUB_PASS }}
         repository: fancy-repo
         tags: fancy
-        path: ${{ env.GITHUB_WORKSPACE }}
+        path: ${{ env.GITHUB_WORKSPACE }}/
         dockerfile: ./DOCKERFILE
         push: true
