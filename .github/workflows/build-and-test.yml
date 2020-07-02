@@ -56,7 +56,7 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_LOGIN }}
         password: ${{ secrets.DOCKERHUB_PASS }}
-        repository: fancy-repo
+        repository: ${{ secrets.DOCKERHUB_LOGIN }}/fancy-repo
         tags: fancy
         path: ${{ env.WORKSPACE }}/
         dockerfile: ./DOCKERFILE
