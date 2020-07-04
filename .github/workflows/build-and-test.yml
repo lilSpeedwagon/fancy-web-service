@@ -71,8 +71,7 @@ jobs:
       uses: Azure/aci-deploy@v1
       with:
         resource-group: fancy-group
-        command-line: ./app
-        # Specify the fully qualified container image name. For example, "myregistry.azurecr.io/nginx:latest" or "python:3.7.2-alpine/"
+        command-line: ./app ${{ secrets.MONGO_URL }}
         image: ${{ secrets.DOCKERHUB_LOGIN }}/fancy-repo:fancy
         ip-address: Public
         location: 'northeurope'
