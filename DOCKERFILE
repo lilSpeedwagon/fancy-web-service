@@ -3,4 +3,3 @@ COPY ./src ./src
 WORKDIR ./src/pkg/main
 RUN go build -v -o ./app
 EXPOSE 80
-RUN ./app mongodb+srv://speedwagon:rXjFPRPwWJcK4ZCV@fancy-cluster-jj9cd.azure.mongodb.net/defaultDB?retryWrites=true&w=majority
