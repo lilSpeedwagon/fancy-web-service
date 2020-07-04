@@ -79,6 +79,7 @@ jobs:
         os-type: Linux
         ports: 80
         protocol: TCP
+        dns-name-label: fancy-service
         # The container image registry login server
         #registry-login-server: # optional, default is 
         # Username to log in Container Image Registry Server
