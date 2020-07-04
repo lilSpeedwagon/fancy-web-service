@@ -1,5 +1,5 @@
 FROM golang:latest
 COPY ./src ./src
 WORKDIR ./src/pkg/main
-RUN go build -v -o ./app
+RUN go build -v -o ./src/bin/app
 EXPOSE 80
