@@ -82,3 +82,4 @@ jobs:
         protocol: TCP
         dns-name-label: fancy-service
         restart-policy: Always
+        log-type: ContainerInsights
