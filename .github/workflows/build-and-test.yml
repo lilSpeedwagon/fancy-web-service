@@ -62,6 +62,11 @@ jobs:
         dockerfile: ./DOCKERFILE
         push: true
         
+    - name: Azure Login
+      uses: Azure/login@v1.1
+      with:
+        creds: ${{ secrets.AZURE_CREDS }}
+    
     - name: Deploy to Azure Container Instances
       uses: Azure/aci-deploy@v1
       with:
