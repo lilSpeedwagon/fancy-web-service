@@ -75,6 +75,7 @@ jobs:
         # Specify the fully qualified container image name. For example, "myregistry.azurecr.io/nginx:latest" or "python:3.7.2-alpine/"
         image: ${{ secrets.DOCKERHUB_LOGIN }}/fancy-repo:fancy
         ip-address: Public
+        location: 'north eu'
         name: fancy-container-auto
         os-type: Linux
         ports: 80
