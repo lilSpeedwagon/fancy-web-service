@@ -71,7 +71,7 @@ jobs:
       uses: Azure/aci-deploy@v1
       with:
         resource-group: fancy-group
-        command-line: ./app ${{ secrets.MONGO_URL }}
+        command-line: ./app test #${{ secrets.MONGO_URL }}
         image: ${{ secrets.DOCKERHUB_LOGIN }}/fancy-repo:fancy
         ip-address: Public
         location: 'northeurope'
